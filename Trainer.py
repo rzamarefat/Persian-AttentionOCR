@@ -59,7 +59,6 @@ class Trainer:
                     optimizer,
                     criterion, 
                     teacher_forcing_ratio, 
-                    max_len,
                     tokenizer):
 
         model.train()
@@ -108,7 +107,6 @@ class Trainer:
                     target_tensor, 
                     model, 
                     criterion, 
-                    max_len, 
                     tokenizer):
         loss = 0
 
@@ -144,14 +142,18 @@ class Trainer:
         sum_acc = 0
         sum_sentence_acc = 0
 
-        for bi, batch in enumerate(tqdm(self.train_loader)):
-            x, y = batch
+        for bi, x, y in enumerate(tqdm(train_loader)):
             x = x.to(self.device)
             y = y.to(self.device)
 
-            loss, acc, sentence_acc = train_batch(x, y, model, optimizer,
-                                                  crit, teacher_forcing_ratio, max_len,
-                                                  tokenizer)
+            loss, acc, sentence_acc = train_batch(x, y, 
+                                                self.model, 
+                                                self.optimizer,
+                                                self.criterion, 
+                                                self.teacher_forcing_ratio, 
+                                                self.max_len,
+                                                self.tokenizer
+                                                )
 
             sum_loss_train += loss
             sum_acc += acc
@@ -161,13 +163,13 @@ class Trainer:
 
         return sum_loss_train / n_train, sum_acc / n_train, sum_sentence_acc / n_train
 
-    def eval_epoch():
+    def eval_epoch(self):
         sum_loss_eval = 0
         n_eval = 0
         sum_acc = 0
         sum_sentence_acc = 0
 
-        for bi, batch in enumerate(tqdm(test_loader)):
+        for bi, batch in enumerate(tqdm(self.test_loader)):
             x, y = batch
             x = x.to(device=device)
             y = y.to(device=device)
@@ -188,9 +190,9 @@ class Trainer:
             train_loss, train_acc, train_sentence_acc = train_epoch()
             eval_loss, eval_acc, eval_sentence_acc = eval_epoch()
 
-            print("Epoch %d" % epoch)
-            print('train_loss: %.4f, train_acc: %.4f, train_sentence: %.4f' % (train_loss, train_acc, train_sentence_acc))
-            print('eval_loss:  %.4f, eval_acc:  %.4f, eval_sentence:  %.4f' % (eval_loss, eval_acc, eval_sentence_acc))
+            print(f"Epoch: {epoch}")
+            print(f"Train Loss: {train_loss:.4f} Train Acc: {train_acc:.4f}")
+            print(f"Eval Loss: {eval_loss:.4f} Eval Acc: {eval_acc:.4f}")
 
             if epoch % save_checkpoint_every == 0 and epoch > 0:
                 print('saving checkpoint...')
