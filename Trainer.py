@@ -1,6 +1,7 @@
 from torch.utils.data import DataLoader
 from dataset import CustomDataset
 from config import config
+import os
 
 class Trainer:
     def __init__(self, 
@@ -199,4 +200,5 @@ class Trainer:
                 torch.save(model.state_dict(), './ckpts/time_%s_epoch_%s.pth' % (time.strftime('%Y-%m-%d_%H-%M-%S'), epoch))
 
     
-        
+if __name__ == "__main__":
+    pass
